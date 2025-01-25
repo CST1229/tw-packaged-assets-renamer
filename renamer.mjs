@@ -11,7 +11,7 @@ async function error(...msg) {
 	throw "";
 }
 
-let dir = process.cwd();
+let jsonDir = process.cwd();
 let projectJsonName = null;
 // disables handholding stuff
 let advancedMode = false;
@@ -19,41 +19,40 @@ let advancedMode = false;
 process.argv.map(arg => arg.toLowerCase()).forEach((arg, index) => {
 	if (index < 2) return;
 	if (arg === "--json") {
-		projectJsonName = path.relative(dir, process.argv[index + 1] || "project.json");
+		projectJsonName = path.relative(jsonDir, process.argv[index + 1] || "project.json");
 	} else if (arg === "--advanced") {
 		advancedMode = false;
 	}
 });
 
 if (!projectJsonName) {
-	const files = await fs.readdir(dir, {recursive: true});
+	const files = await fs.readdir(jsonDir, {recursive: true});
 	projectJsonName = files.find(f => f === "project.json" || f.endsWith("/project.json") || f.endsWith("\\project.json"));
 	if (!projectJsonName) {
-		await error(`project.json file not found anywhere in ${dir}! Did you run this in the packaged project's folder?`);
+		await error(`project.json file not found anywhere in ${jsonDir}! Did you run this in the packaged project's folder?`);
 	}
-	projectJsonName = path.resolve(dir, projectJsonName);
+	projectJsonName = path.resolve(jsonDir, projectJsonName);
 }
-dir = path.dirname(projectJsonName);
+jsonDir = path.dirname(projectJsonName) + "/";
 
 let json;
 try {
-	json = await fs.readFile(projectJson, {encoding: "utf-8"});
+	json = await fs.readFile(projectJsonName, {encoding: "utf-8"});
 } catch (e) {
-	error("Could not read project.json file.", e);
+	await error("Could not read project.json file.", e);
 }
 try {
 	json = JSON.parse(json);
 } catch (e) {
-	error("project.json file seems to not be valid JSON.", e);
+	await error("project.json file seems to not be valid JSON.", e);
 }
 
 const promises = [];
+const written = new Set();
+const toDelete = new Set();
 try {
-	const written = new Set();
-	const toDelete = new Set();
-
 	for (const target of json.targets) {
-		const folder = uniqueFilename(dir + sanitizeAssetName(target.name)) + "/";
+		const folder = uniqueFilename(jsonDir + sanitizeAssetName(target.name)) + "/";
 		await fs.mkdir(folder, {recursive: true});
 		for (const asset of target.costumes) {
 			convertAsset(asset, folder);
@@ -69,28 +68,28 @@ try {
 	for (const oldFile of toDelete) {
 		if (!written.has(oldFile)) {
 			promises.push(fs.rm(oldFile));
-			console.log("Deleting:", oldFile.replace(dir, ""));
+			console.log("Deleting:", oldFile.replace(jsonDir, ""));
 		}
 	}
 	await Promise.all(promises);
 
 } catch (e) {
-	error("An error occurred:", e);
+	await error("An error occurred:", e);
 }
 
-async function convertAsset(asset, folder) {
-	const oldFile = dir + asset.md5ext;
-	const newFile = uniqueFilename(folder + sanitizeAssetName(asset) + "." + asset.dataFormat);
+async function convertAsset(asset, spriteFolder) {
+	const oldFile = jsonDir + asset.md5ext;
+	const newFile = uniqueFilename(spriteFolder + sanitizeAssetName(asset.name) + "." + asset.dataFormat);
 	toDelete.add(oldFile);
 
-	const dirlessName = newFile.replace(dir, "");
+	const dirlessName = newFile.replace(spriteFolder, "");
 	asset.md5ext = dirlessName;
 	asset.assetId = dirlessName.substring(0, dirlessName.length - path.extname(dirlessName).length);
 
-	const dir = path.dirname(newFile);
-	promises.add(fs.mkdir(dir, {recursive: true}).then(() => fs.copyFile(oldFile, newFile)));
+	const assetDir = path.dirname(newFile);
+	promises.push(fs.mkdir(assetDir, {recursive: true}).then(() => fs.copyFile(oldFile, newFile)));
 
-	console.log("Copying:", oldFile.replace(dir, ""), "->", dirlessName);
+	console.log("Copying:", oldFile.replace(assetDir, ""), "->", dirlessName);
 }
 
 function sanitizeAssetName(name) {
@@ -112,9 +111,9 @@ function uniqueFilename(filename) {
 }
 
 try {
-	await fs.writeFile(projectJson, JSON.stringify(json));
+	await fs.writeFile(projectJsonName, JSON.stringify(json));
 	console.log("Done.");
 	if (!advancedMode) await sleep(500);
 } catch (e) {
-	error("Could not write new project.json file:", e);
+	await error("Could not write new project.json file:", e);
 }
