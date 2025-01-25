@@ -10,23 +10,10 @@ First, package your project to a zip or Electron (or any other environment that 
 
 This script uses [Node.js](https://nodejs.org/), so install that first.
 
-Afterwards, you have 2 methods:
-
-### Easier method (Windows only)
-
-Open File Explorer, then navigate to your project's extracted folder.
-
-Afterwards, click the address bar (which shows you the current folder name), then paste this in, and press Enter to download and run the script:
-
-```
-node -e "{}" --import=https://raw.githubusercontent.com/CST1229/tw-packaged-assets-renamer/main/renamer.mjs
-```
-
-### Slightly harder method
-
-Download the `renamer.mjs` file from this repository and put it into your project's folder. Afterwards, open a terminal in that folder. On Windows you can do this by opening File Explorer, navigating to your project folder, clicking the "address bar" (which shows you the current folder you're in) and entering `cmd` into it, then pressing Enter.
-
-Then, run `node renamer.mjs` in the terminal.
+Afterwards:
+1. Download the [renamer.mjs](https://raw.githubusercontent.com/CST1229/tw-packaged-assets-renamer/refs/heads/main/renamer.mjs) file from this repository and put it into your project's folder.
+2. Open a terminal in that folder. On Windows you can do this by opening File Explorer, navigating to your project folder, clicking the "address bar" (which shows you the current folder you're in) and entering `cmd` into it, then pressing Enter.
+3. Run `node renamer.mjs` in the terminal to run the script.
 
 ## Parameters (advanced)
 
