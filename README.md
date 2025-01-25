@@ -1,12 +1,12 @@
 # TurboWarp Packaged Assets Renamer
 
-Renames asset files in a packaged TurboWarp project to match their sprite and costumes/sound names, as well as any folders made using the Sprite folders addon, and also updates the project.json file to point to the new paths.
+Renames asset files in a packaged TurboWarp project to match their sprite and costumes/sound names, as well as any folders made using the Sprite folders addon, instead of their normal random-ish names.
 
-This may cause duplicate files to be created if 2 assets are identical, which could slightly increase the project's filesize.
+This may cause duplicate files to be created if 2 assets are identical, which could slightly increase the project's filesize. It might also not work well with other tools.
 
 ## Usage
 
-First, package your project and extract it; that folder will be where you run the script.
+First, package your project to a zip or Electron (or any other environment that has separate asset files) and extract it; that folder will be where you run the script.
 
 This script uses [Node.js](https://nodejs.org/), so install that first.
 
