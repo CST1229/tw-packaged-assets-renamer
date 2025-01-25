@@ -19,6 +19,7 @@ Download the [renamer.mjs](https://github.com/CST1229/tw-packaged-assets-renamer
 3. You might also want to delete the downloaded script afterwards.
 
 ### Harder method
+
 1. Open a terminal in that folder. On Windows you can do this by opening File Explorer, navigating to your project folder, clicking the "address bar" (which shows you the current folder you're in) and entering `cmd` into it, then pressing Enter.
 2. Run `node renamer.mjs` in the terminal to run the script.
 3. You might also want to delete the downloaded script afterwards.
