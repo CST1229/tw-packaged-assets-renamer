@@ -19,7 +19,7 @@ Open File Explorer, then navigate to your project's extracted folder.
 Afterwards, click the address bar (which shows you the current folder name), then paste this in, and press Enter to download and run the script:
 
 ```
-node -e "{}" --import=https://raw.githubusercontent.com/CST1229/tw-packaged-assets-renamer/master/renamer.mjs
+node -e "{}" --import=https://raw.githubusercontent.com/CST1229/tw-packaged-assets-renamer/main/renamer.mjs
 ```
 
 ### Slightly harder method
