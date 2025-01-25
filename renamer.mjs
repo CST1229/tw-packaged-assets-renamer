@@ -82,7 +82,7 @@ async function convertAsset(asset, spriteFolder) {
 	const newFile = uniqueFilename(spriteFolder + sanitizeAssetName(asset.name) + "." + asset.dataFormat);
 	toDelete.add(oldFile);
 
-	const dirlessName = newFile.replace(spriteFolder, "");
+	const dirlessName = newFile.replace(jsonDir, "");
 	asset.md5ext = dirlessName;
 	asset.assetId = dirlessName.substring(0, dirlessName.length - path.extname(dirlessName).length);
 
