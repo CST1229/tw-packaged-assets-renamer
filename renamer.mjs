@@ -15,6 +15,8 @@ let jsonDir = process.cwd();
 let projectJsonName = null;
 // disables handholding stuff
 let advancedMode = false;
+// obfuscate filenames
+let obfuscate = false;
 
 process.argv.map(arg => arg.toLowerCase()).forEach((arg, index) => {
 	if (index < 2) return;
@@ -22,7 +24,13 @@ process.argv.map(arg => arg.toLowerCase()).forEach((arg, index) => {
 		projectJsonName = path.relative(jsonDir, process.argv[index + 1] || "project.json");
 	} else if (arg === "--advanced") {
 		advancedMode = false;
+	} else if (arg === "--obfuscate") {
+		obfuscate ||= true;
 	}
+	// noexts mode breaks everything
+	// else if (arg === "--obfuscate=noexts") {
+	//	obfuscate = "noexts";
+	//}
 });
 
 if (!projectJsonName) {
@@ -47,12 +55,28 @@ try {
 	await error("project.json file seems to not be valid JSON.", e);
 }
 
+function randomMD5ish() {
+	const chars = "0123456789abcdef";
+	let string = "";
+	for (let i = 0; i < 32; i++) {
+		string += chars[Math.floor(Math.random() * chars.length)];
+	}
+	return string;
+}
+
 const promises = [];
 const written = new Set();
 const toDelete = new Set();
 try {
+	if ((json.customFonts || []).length) {
+		const folder = obfuscate ? jsonDir : (uniqueFilename(jsonDir + "fonts") + "/");
+		await fs.mkdir(folder, {recursive: true});
+		for (const asset of json.customFonts) {
+			convertAsset(asset, folder);
+		}
+	}
 	for (const target of json.targets) {
-		const folder = uniqueFilename(jsonDir + sanitizeAssetName(target.name)) + "/";
+		const folder = obfuscate ? jsonDir : (uniqueFilename(jsonDir + sanitizeAssetName(target.name)) + "/");
 		await fs.mkdir(folder, {recursive: true});
 		for (const asset of target.costumes) {
 			convertAsset(asset, folder);
@@ -78,13 +102,30 @@ try {
 }
 
 async function convertAsset(asset, spriteFolder) {
+	if (!asset.md5ext) return;
 	const oldFile = jsonDir + asset.md5ext;
-	const newFile = uniqueFilename(spriteFolder + sanitizeAssetName(asset.name) + "." + asset.dataFormat);
+	let newFile;
+	if (obfuscate) {
+		if (obfuscate === "noexts") {
+			newFile = uniqueFilename(spriteFolder + randomMD5ish() + ".asset");
+		} else {
+			newFile = uniqueFilename(spriteFolder + randomMD5ish() + "." + (asset.dataFormat || path.extname(asset.md5ext).substring(1)));
+		}
+	} else {
+		newFile = uniqueFilename(spriteFolder + sanitizeAssetName(asset.name || asset.family) + "." + (asset.dataFormat || path.extname(asset.md5ext).substring(1)));
+	}
 	toDelete.add(oldFile);
 
 	const dirlessName = newFile.replace(jsonDir, "");
 	asset.md5ext = dirlessName;
-	asset.assetId = dirlessName.substring(0, dirlessName.length - path.extname(dirlessName).length);
+	if ("assetId" in asset) {
+		if (obfuscate) {
+			asset.assetId = "";
+			//asset.dataFormat = "";
+		} else {
+			asset.assetId = dirlessName.substring(0, dirlessName.length - path.extname(dirlessName).length);
+		}
+	}
 
 	const assetDir = path.dirname(newFile);
 	promises.push(fs.mkdir(assetDir, {recursive: true}).then(() => fs.copyFile(oldFile, newFile)));

@@ -2,7 +2,7 @@
 
 Renames asset files in a packaged TurboWarp project to match their sprite and costumes/sound names, as well as any folders made using the Sprite folders addon, instead of their normal random-ish names.
 
-This may cause duplicate files to be created if 2 assets are identical, which could slightly increase the project's filesize. It might also not work well with other tools.
+This may cause duplicate files to be created if 2 assets are identical, which could slightly increase the project's filesize. It might also not work well with other tools (like the unpackager, though it's still possible to get project files back by modifying the unpackager).
 
 ## Usage
 
@@ -27,5 +27,6 @@ Download the [renamer.mjs](https://github.com/CST1229/tw-packaged-assets-renamer
 ## Parameters (advanced)
 
 There are some additional command line arguments you can give:
-- `--advanced` - remove waiting for error messages. Use if you're running this script in a terminal.
-- `--json [file]` - specify a direct path to a project.json file, instead of searching in your current directory
+- `--advanced` - Remove waiting for error messages. Use if you're running this script in a terminal.
+- `--json [file]` - Specify a direct path to a project.json file instead of searching in your current directory.
+- `--obfuscate` - Instead of properly naming assets, randomize their names (like vanilla but actually randomized instead of based on the asset content), and also remove their original filenames from the project.json.
