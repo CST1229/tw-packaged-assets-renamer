@@ -137,7 +137,7 @@ function sanitizeAssetName(name) {
 	return (name || "_")
 		// kinda-dumb way to support addon folders
 		.replaceAll("//", "[__FOLDER_PLACEHOLDER__]")
-		.replaceAll(/[\/\\:?"<>*|&]/g, "_")
+		.replaceAll(/[\/\\:?"<>*|&.]/g, "_")
 		.replaceAll("[__FOLDER_PLACEHOLDER__]", "/");
 }
 function uniqueFilename(filename) {
